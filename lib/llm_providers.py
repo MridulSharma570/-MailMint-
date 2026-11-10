@@ -5,13 +5,14 @@ Developers: Anmolpreet Singh (Developer) & Mridul Sharma (Co-Developer)
 Supports 100% FREE API keys from:
 1. Google Gemini (Google AI Studio Free Tier)
 2. Groq Cloud (Free Developer Tier)
-3. OpenRouter (Free `:free` Models & `openrouter/free` Router)
+3. OpenRouter (Free `:free` Models & Dynamic Auto-Fallback Waterfall)
 4. Mistral AI (La Plateforme Free Tier)
 5. Cohere (Free Trial API Key)
 """
 
 import os
 import re
+import time
 from typing import Dict, Any, List, Optional, Tuple
 import requests
 
@@ -24,6 +25,24 @@ class LLMProviderError(Exception):
         self.code = code
         self.message = message
         self.status_code = status_code
+
+
+# Preferred fast, high-quality free models on OpenRouter (waterfall order)
+OPENROUTER_PREFERRED_FREE_MODELS: List[str] = [
+    "google/gemma-4-26b-a4b-it:free",
+    "nvidia/nemotron-3.5-lightning:free",
+    "google/gemma-4-31b-it:free",
+    "xingchen-agi/xing4.0-29b-a4b:free",
+    "nvidia/nemotron-3-ultra-550b-a55b:free",
+    "thinkingmachines/inkling-2-small:free",
+    "openrouter/free",
+]
+
+# Simple in-memory cache for dynamically discovered OpenRouter :free models
+_OPENROUTER_MODELS_CACHE: Dict[str, Any] = {
+    "fetched_at": 0.0,
+    "models": [],
+}
 
 
 PROVIDERS_CATALOG: Dict[str, Dict[str, Any]] = {
@@ -49,7 +68,7 @@ PROVIDERS_CATALOG: Dict[str, Dict[str, Any]] = {
             "Open Google AI Studio at https://aistudio.google.com/apikey and sign in with your Google account.",
             "Click 'Create API Key' (no credit card or billing setup is required).",
             "Copy the generated key string (starts with 'AIzaSy...').",
-            "Paste the key into MailMint above and click 'Save Key' — you're ready to craft emails!",
+            "Paste the key into MailMint on the left and click 'Save Key & Activate'!",
         ],
     },
     "groq": {
@@ -63,7 +82,7 @@ PROVIDERS_CATALOG: Dict[str, Dict[str, Any]] = {
         "key_placeholder": "gsk_...",
         "portal_url": "https://console.groq.com/keys",
         "portal_label": "console.groq.com/keys",
-        "free_tier_note": "Free developer plan • No credit card needed • Blazing LPU inference speed",
+        "free_tier_note": "Free developer plan • No credit card needed • Sub-second LPU inference speed",
         "default_model": "llama-3.3-70b-versatile",
         "models": [
             {"id": "llama-3.3-70b-versatile", "label": "Llama 3.3 70B Versatile (Best Quality — Free)"},
@@ -73,34 +92,35 @@ PROVIDERS_CATALOG: Dict[str, Dict[str, Any]] = {
             "Visit https://console.groq.com/keys and sign up or log in with Google or GitHub.",
             "Click 'Create API Key' in the top-right corner and name it 'MailMint'.",
             "Copy your secret key immediately (starts with 'gsk_...').",
-            "Paste it into MailMint above and click 'Save Key'.",
+            "Paste it into MailMint on the left and click 'Save Key & Activate'.",
         ],
     },
     "openrouter": {
         "id": "openrouter",
         "name": "OpenRouter",
         "badge": "Free Models (:free)",
-        "speed": "Moderate (~2s)",
+        "speed": "Fast (~1.8s)",
         "card_required": "No (:free models)",
         "env_var": "OPENROUTER_API_KEY",
         "key_prefix": "sk-or-",
         "key_placeholder": "sk-or-v1-...",
         "portal_url": "https://openrouter.ai/keys",
         "portal_label": "openrouter.ai/keys",
-        "free_tier_note": "Access Llama, Gemma, Mistral & Qwen ':free' models at $0 cost",
+        "free_tier_note": "Smart auto-fallback across Gemma 4, Nemotron & OpenRouter ':free' models at $0 cost",
         "default_model": "openrouter/free",
         "models": [
-            {"id": "openrouter/free", "label": "Auto Free Router (openrouter/free — Always Available)"},
-            {"id": "meta-llama/llama-3.3-70b-instruct:free", "label": "Meta Llama 3.3 70B Instruct (:free)"},
-            {"id": "google/gemma-3-27b-it:free", "label": "Google Gemma 3 27B IT (:free)"},
-            {"id": "mistralai/mistral-small-3.1-24b-instruct:free", "label": "Mistral Small 3.1 24B (:free)"},
-            {"id": "google/gemma-pro-1.1-it:free", "label": "Google Gemma Pro 1.1 IT (:free — Legacy)"},
+            {"id": "openrouter/free", "label": "Smart Free Router (Auto-Fallback — Always Available)"},
+            {"id": "google/gemma-4-26b-a4b-it:free", "label": "Google Gemma 4 26B MoE (:free — Fast)"},
+            {"id": "google/gemma-4-31b-it:free", "label": "Google Gemma 4 31B IT (:free — High Quality)"},
+            {"id": "nvidia/nemotron-3.5-lightning:free", "label": "NVIDIA Nemotron 3.5 Lightning (:free — Fast)"},
+            {"id": "nvidia/nemotron-3-ultra-550b-a55b:free", "label": "NVIDIA Nemotron 3 Ultra 550B (:free)"},
+            {"id": "xingchen-agi/xing4.0-29b-a4b:free", "label": "Xing 4.0 29B MoE (:free)"},
         ],
         "steps": [
             "Go to https://openrouter.ai/keys and sign in using Google, GitHub, or email.",
             "Click 'Create Key', name it 'MailMint', and leave credit limit blank (free models cost $0).",
             "Copy the generated API key (starts with 'sk-or-v1-...').",
-            "Paste it into MailMint above, keep any ':free' model selected, and click 'Save Key'.",
+            "Paste it into MailMint, keep 'Smart Free Router' or any ':free' model selected, and click 'Save Key & Activate'.",
         ],
     },
     "mistral": {
@@ -123,8 +143,8 @@ PROVIDERS_CATALOG: Dict[str, Dict[str, Any]] = {
         "steps": [
             "Open https://console.mistral.ai/api-keys and create a free Mistral account.",
             "Select the free 'Experiment' plan on La Plateforme (no payment required).",
-            "Click 'Create new key', copy the key string, and paste it into MailMint above.",
-            "Click 'Save Key' to start generating polished emails.",
+            "Click 'Create new key', copy the key string, and paste it into MailMint.",
+            "Click 'Save Key & Activate' to start generating polished emails.",
         ],
     },
     "cohere": {
@@ -146,8 +166,8 @@ PROVIDERS_CATALOG: Dict[str, Dict[str, Any]] = {
         ],
         "steps": [
             "Visit https://dashboard.cohere.com/api-keys and sign up with Google or GitHub.",
-            "Under 'Trial keys', copy your ready-made Free Trial key (or click 'Create Trial key').",
-            "Paste the key into MailMint above and click 'Save Key'.",
+            "Under 'Trial keys', copy your ready-made Free Trial key.",
+            "Paste the key into MailMint on the left and click 'Save Key & Activate'.",
             "Head over to the Studio page and generate your email!",
         ],
     },
@@ -267,6 +287,53 @@ Strict Rules:
     return system_prompt, user_prompt
 
 
+def _strip_thinking_tags(text: str) -> str:
+    """Remove inline <think>...</think> reasoning blocks emitted by some open-weights models."""
+    if not text:
+        return ""
+    cleaned = re.sub(r"<think>.*?</think>", "", text, flags=re.DOTALL | re.IGNORECASE)
+    # Also handle unclosed leading <think> if model used a custom separator
+    if "<think>" in cleaned.lower() and "subject:" in cleaned.lower():
+        subj_idx = cleaned.lower().find("subject:")
+        cleaned = cleaned[subj_idx:]
+    return cleaned.strip()
+
+
+def _extract_choice_content(choice: Dict[str, Any]) -> str:
+    """
+    Robustly extract final message text across string content, structured content blocks,
+    and reasoning-model responses.
+    """
+    msg = choice.get("message") or {}
+    raw_content = msg.get("content")
+
+    text = ""
+    if isinstance(raw_content, str):
+        text = raw_content.strip()
+    elif isinstance(raw_content, list):
+        parts = []
+        for item in raw_content:
+            if isinstance(item, dict) and item.get("type") in ("text", "output_text", None):
+                parts.append(str(item.get("text") or ""))
+            elif isinstance(item, str):
+                parts.append(item)
+        text = "".join(parts).strip()
+
+    text = _strip_thinking_tags(text)
+    if text:
+        return text
+
+    # Fallback: occasionally a reasoning model places the final formatted email at the tail of `reasoning`
+    reasoning_val = msg.get("reasoning") or msg.get("reasoning_content") or ""
+    if isinstance(reasoning_val, str) and "subject:" in reasoning_val.lower():
+        idx = reasoning_val.lower().rfind("subject:")
+        candidate = reasoning_val[idx:].strip()
+        if len(candidate) > 40:
+            return candidate
+
+    return ""
+
+
 def _handle_http_errors(response: requests.Response, provider_name: str) -> None:
     """Inspect non-2xx HTTP responses and raise structured LLMProviderError."""
     status = response.status_code
@@ -319,14 +386,15 @@ def _call_gemini(api_key: str, model: str, system_prompt: str, user_prompt: str)
     payload = {
         "systemInstruction": {"parts": [{"text": system_prompt}]},
         "contents": [{"role": "user", "parts": [{"text": user_prompt}]}],
-        "generationConfig": {"temperature": 0.7, "maxOutputTokens": 750},
+        # High maxOutputTokens ensures Gemini 2.5 Flash thinking tokens never starve final output
+        "generationConfig": {"temperature": 0.7, "maxOutputTokens": 2500},
     }
     resp = requests.post(
         url,
         params={"key": api_key},
         headers={"Content-Type": "application/json"},
         json=payload,
-        timeout=35,
+        timeout=45,
     )
     if not resp.ok:
         _handle_http_errors(resp, "Google Gemini")
@@ -336,10 +404,12 @@ def _call_gemini(api_key: str, model: str, system_prompt: str, user_prompt: str)
     if not candidates:
         raise LLMProviderError("EMPTY_RESPONSE", "Google Gemini returned an empty response.", 502)
     parts = candidates[0].get("content", {}).get("parts", [])
-    text = "".join(p.get("text", "") for p in parts).strip()
+    text = "".join(p.get("text", "") for p in parts if not p.get("thought")).strip()
+    if not text:
+        text = "".join(p.get("text", "") for p in parts).strip()
     if not text:
         raise LLMProviderError("EMPTY_RESPONSE", "Google Gemini returned no text content.", 502)
-    return text
+    return _strip_thinking_tags(text)
 
 
 def _call_openai_compatible(
@@ -350,6 +420,8 @@ def _call_openai_compatible(
     system_prompt: str,
     user_prompt: str,
     extra_headers: Optional[Dict[str, str]] = None,
+    max_tokens: int = 1200,
+    extra_body: Optional[Dict[str, Any]] = None,
 ) -> str:
     headers = {
         "Authorization": f"Bearer {api_key}",
@@ -366,58 +438,177 @@ def _call_openai_compatible(
             {"role": "user", "content": user_prompt},
         ]
 
-    payload = {
+    payload: Dict[str, Any] = {
         "model": model,
         "messages": messages,
         "temperature": 0.7,
-        "max_tokens": 700,
+        "max_tokens": max_tokens,
     }
-    resp = requests.post(endpoint, headers=headers, json=payload, timeout=35)
+    if extra_body:
+        payload.update(extra_body)
+
+    resp = requests.post(endpoint, headers=headers, json=payload, timeout=50)
     if not resp.ok:
         _handle_http_errors(resp, provider_name)
 
     data = resp.json()
+
+    # OpenRouter can return an inline {"error": {"code": ..., "message": ...}} inside HTTP 200
+    if isinstance(data, dict) and data.get("error"):
+        err_obj = data["error"]
+        err_code = err_obj.get("code") if isinstance(err_obj, dict) else 502
+        err_msg = err_obj.get("message") if isinstance(err_obj, dict) else str(err_obj)
+        if err_code in (401, 403):
+            raise LLMProviderError("INVALID_API_KEY", f"Invalid API key for {provider_name}.", 401)
+        if err_code == 429:
+            raise LLMProviderError("RATE_LIMIT", "Too many requests, try again in 30s", 429)
+        raise LLMProviderError("API_ERROR", err_msg or f"{provider_name} upstream error.", 502)
+
     choices = data.get("choices") or []
     if not choices:
         raise LLMProviderError("EMPTY_RESPONSE", f"{provider_name} returned no choices.", 502)
-    text = (choices[0].get("message", {}).get("content") or "").strip()
+
+    text = _extract_choice_content(choices[0])
     if not text:
         raise LLMProviderError("EMPTY_RESPONSE", f"{provider_name} returned an empty message.", 502)
     return text
 
 
-def _call_openrouter(api_key: str, model: str, system_prompt: str, user_prompt: str) -> Tuple[str, str]:
+def _get_live_openrouter_free_models() -> List[str]:
+    """
+    Fetch & cache currently active `:free` models from OpenRouter's public catalog
+    so MailMint stays resilient even when OpenRouter rotates free models.
+    """
+    now = time.time()
+    if _OPENROUTER_MODELS_CACHE["models"] and (now - _OPENROUTER_MODELS_CACHE["fetched_at"] < 1800):
+        return _OPENROUTER_MODELS_CACHE["models"]
+
+    try:
+        r = requests.get("https://openrouter.ai/api/v1/models", timeout=8)
+        if r.ok:
+            items = r.json().get("data") or []
+            free_ids = [
+                m["id"]
+                for m in items
+                if isinstance(m, dict)
+                and isinstance(m.get("id"), str)
+                and m["id"].endswith(":free")
+                and "-vl:" not in m["id"]
+                and "code:" not in m["id"]
+            ]
+            if free_ids:
+                _OPENROUTER_MODELS_CACHE["fetched_at"] = now
+                _OPENROUTER_MODELS_CACHE["models"] = free_ids
+                return free_ids
+    except Exception:
+        pass
+
+    return list(OPENROUTER_PREFERRED_FREE_MODELS)
+
+
+def _build_openrouter_waterfall(requested_model: str) -> List[str]:
+    """
+    Build an ordered list of up to 5 free OpenRouter models to attempt.
+    Prioritizes fast, reliable text models before `openrouter/free` so reasoning
+    models never starve `message.content`.
+    """
+    live_free = set(_get_live_openrouter_free_models())
+    candidates: List[str] = []
+
+    req = (requested_model or "").strip()
+    # If user explicitly picked a specific live :free model (not the generic router), try it first
+    if req and req != "openrouter/free" and (not live_free or req in live_free):
+        candidates.append(req)
+
+    # Next add preferred verified fast :free models that are currently live
+    for pref in OPENROUTER_PREFERRED_FREE_MODELS:
+        if pref == "openrouter/free":
+            continue
+        if (not live_free or pref in live_free) and pref not in candidates:
+            candidates.append(pref)
+
+    # Include any newly launched live :free models as backup
+    for dynamic_id in live_free:
+        if dynamic_id not in candidates and len(candidates) < 5:
+            candidates.append(dynamic_id)
+
+    trimmed = [c for c in candidates if c != "openrouter/free"][:4]
+    trimmed.append("openrouter/free")
+    return trimmed
+
+
+def _call_openrouter(
+    api_key: str,
+    model: str,
+    system_prompt: str,
+    user_prompt: str,
+    max_tokens: int = 4096,
+) -> Tuple[str, str]:
+    """
+    Call OpenRouter with:
+    1) Generous max_tokens (4096, $0 on :free models) + low reasoning effort so
+       thinking tokens NEVER exhaust the budget and return an empty message.
+    2) Automatic multi-model waterfall across live `:free` models if an upstream
+       free model returns empty content, 404, 429 model-busy, or 5xx.
+    """
     endpoint = "https://openrouter.ai/api/v1/chat/completions"
     extra_headers = {
         "HTTP-Referer": "https://mailmint.app",
         "X-Title": "MailMint AI",
     }
-    try:
-        text = _call_openai_compatible(
-            endpoint=endpoint,
-            api_key=api_key,
-            provider_name="OpenRouter",
-            model=model,
-            system_prompt=system_prompt,
-            user_prompt=user_prompt,
-            extra_headers=extra_headers,
-        )
-        return text, model
-    except LLMProviderError as exc:
-        if exc.code in ("INVALID_API_KEY", "MISSING_API_KEY"):
-            raise
-        if model != "openrouter/free":
+
+    waterfall = _build_openrouter_waterfall(model)
+    last_error: Optional[LLMProviderError] = None
+
+    for candidate_model in waterfall:
+        try:
             text = _call_openai_compatible(
                 endpoint=endpoint,
                 api_key=api_key,
                 provider_name="OpenRouter",
-                model="openrouter/free",
+                model=candidate_model,
                 system_prompt=system_prompt,
                 user_prompt=user_prompt,
                 extra_headers=extra_headers,
+                max_tokens=max_tokens,
+                extra_body={"reasoning": {"effort": "low"}},
             )
-            return text, "openrouter/free"
-        raise
+            if text and text.strip():
+                return text, candidate_model
+        except LLMProviderError as exc:
+            # Invalid or missing API key should fail immediately without retrying other models
+            if exc.code in ("INVALID_API_KEY", "MISSING_API_KEY"):
+                raise
+
+            # If a model rejected the `reasoning` parameter (HTTP 400), retry once without extra_body
+            if exc.code == "API_ERROR" and "reasoning" in exc.message.lower():
+                try:
+                    text = _call_openai_compatible(
+                        endpoint=endpoint,
+                        api_key=api_key,
+                        provider_name="OpenRouter",
+                        model=candidate_model,
+                        system_prompt=system_prompt,
+                        user_prompt=user_prompt,
+                        extra_headers=extra_headers,
+                        max_tokens=max_tokens,
+                    )
+                    if text and text.strip():
+                        return text, candidate_model
+                except LLMProviderError as inner_exc:
+                    last_error = inner_exc
+                    continue
+
+            last_error = exc
+            continue
+
+    if last_error:
+        raise last_error
+    raise LLMProviderError(
+        "PROVIDER_UNAVAILABLE",
+        "All free OpenRouter models are currently busy. Please retry in a few seconds or switch to Gemini/Groq.",
+        502,
+    )
 
 
 def _call_cohere(api_key: str, model: str, system_prompt: str, user_prompt: str) -> str:
@@ -433,18 +624,24 @@ def _call_cohere(api_key: str, model: str, system_prompt: str, user_prompt: str)
             {"role": "user", "content": user_prompt},
         ],
         "temperature": 0.7,
-        "max_tokens": 700,
+        "max_tokens": 1200,
     }
-    resp = requests.post(endpoint, headers=headers, json=payload, timeout=35)
+    resp = requests.post(endpoint, headers=headers, json=payload, timeout=40)
     if not resp.ok:
         _handle_http_errors(resp, "Cohere")
 
     data = resp.json()
     content_blocks = data.get("message", {}).get("content", [])
-    text = "".join(block.get("text", "") for block in content_blocks if isinstance(block, dict)).strip()
+    text = "".join(
+        block.get("text", "")
+        for block in content_blocks
+        if isinstance(block, dict) and block.get("type") != "thinking"
+    ).strip()
+    if not text:
+        text = "".join(block.get("text", "") for block in content_blocks if isinstance(block, dict)).strip()
     if not text:
         raise LLMProviderError("EMPTY_RESPONSE", "Cohere returned an empty response.", 502)
-    return text
+    return _strip_thinking_tags(text)
 
 
 def parse_generated_email(raw_text: str) -> Dict[str, Any]:
@@ -452,7 +649,7 @@ def parse_generated_email(raw_text: str) -> Dict[str, Any]:
     Parse raw LLM text into structured email components:
     subject, altSubjects, greeting, body, signOff, emailBodyFull, fullEmail, wordCount, readingTimeSec.
     """
-    cleaned = raw_text.strip()
+    cleaned = _strip_thinking_tags(raw_text)
     cleaned = re.sub(r"^```(?:text|markdown|email)?\s*", "", cleaned, flags=re.IGNORECASE)
     cleaned = re.sub(r"\s*```$", "", cleaned)
     cleaned = cleaned.strip()
@@ -471,7 +668,11 @@ def parse_generated_email(raw_text: str) -> Dict[str, Any]:
             if m_subj:
                 subject = re.sub(r"\*\*$", "", m_subj.group(1)).strip()
                 continue
-            m_alt = re.match(r"^(?:\*\*|#+\s*)?alt[-_\s]*subject(?:[-_\s]*\d+)?\s*:\s*(.+)$", stripped, flags=re.IGNORECASE)
+            m_alt = re.match(
+                r"^(?:\*\*|#+\s*)?alt[-_\s]*subject(?:[-_\s]*\d+)?\s*:\s*(.+)$",
+                stripped,
+                flags=re.IGNORECASE,
+            )
             if m_alt:
                 alt_val = re.sub(r"\*\*$", "", m_alt.group(1)).strip()
                 if alt_val and alt_val != subject:
@@ -570,10 +771,11 @@ def generate_professional_email(
                 model=chosen_model,
                 system_prompt=system_prompt,
                 user_prompt=user_prompt,
+                max_tokens=1400,
             )
         elif provider_id == "openrouter":
             raw_output, used_model = _call_openrouter(
-                resolved_key, chosen_model, system_prompt, user_prompt
+                resolved_key, chosen_model, system_prompt, user_prompt, max_tokens=4096
             )
         elif provider_id == "mistral":
             raw_output = _call_openai_compatible(
@@ -583,6 +785,7 @@ def generate_professional_email(
                 model=chosen_model,
                 system_prompt=system_prompt,
                 user_prompt=user_prompt,
+                max_tokens=1400,
             )
         elif provider_id == "cohere":
             raw_output = _call_cohere(resolved_key, chosen_model, system_prompt, user_prompt)
@@ -642,9 +845,12 @@ def verify_provider_api_key(
                 model=chosen_model,
                 system_prompt=sys_msg,
                 user_prompt=usr_msg,
+                max_tokens=256,
             )
         elif provider_id == "openrouter":
-            _, used_model = _call_openrouter(resolved_key, chosen_model, sys_msg, usr_msg)
+            _, used_model = _call_openrouter(
+                resolved_key, chosen_model, sys_msg, usr_msg, max_tokens=1024
+            )
         elif provider_id == "mistral":
             _call_openai_compatible(
                 endpoint="https://api.mistral.ai/v1/chat/completions",
@@ -653,6 +859,7 @@ def verify_provider_api_key(
                 model=chosen_model,
                 system_prompt=sys_msg,
                 user_prompt=usr_msg,
+                max_tokens=256,
             )
         elif provider_id == "cohere":
             _call_cohere(resolved_key, chosen_model, sys_msg, usr_msg)
