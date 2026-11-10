@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+{% block title %}About MailMint — Architecture & Team{% endblock %}
+
+{% block content %}
+<div class="container-wide about-container">
+  <div class="page-header-bar">
+    <div>
+      <span class="eyebrow-mint">PRODUCT ARCHITECTURE &amp; TEAM</span>
+      <h1 class="page-title">About MailMint ✉️🌿</h1>
+      <p class="page-subtitle">
+        Designed for speed, clarity, and zero subscription lock-in — built with clean foundational web technologies.
+      </p>
+    </div>
+    <a href="/studio" class="btn btn-mint">Try MailMint Studio →</a>
+  </div>
+
+  <!-- Architecture & Philosophy Grid -->
+  <div class="about-grid-3">
+    <div class="jet-card about-pillar">
+      <span class="pillar-badge mint">01 • PRIVACY-FIRST BYOK</span>
+      <h3>Zero Database Tracking</h3>
+      <p>
+        MailMint uses a stateless architecture. Your personal API keys and saved email drafts live strictly inside your browser's local storage — never logged in any external database.
+      </p>
+    </div>
+
+    <div class="jet-card about-pillar">
+      <span class="pillar-badge gold">02 • MULTI-ENGINE FREEDOM</span>
+      <h3>5 Free AI Providers</h3>
+      <p>
+        Switch effortlessly between Google Gemini, Groq Cloud, OpenRouter (<code>:free</code> models), Mistral AI, and Cohere — with automatic OpenRouter model fallback for rock-solid reliability.
+      </p>
+    </div>
+
+    <div class="jet-card about-pillar">
+      <span class="pillar-badge mint">03 • EXECUTIVE PRECISION</span>
+      <h3>Zero Bracket Placeholders</h3>
+      <p>
+        Every email includes a primary subject line, two 1-click alternative subjects, natural greeting, structured body, and clean sign-off — ready to dispatch immediately.
+      </p>
+    </div>
+  </div>
+
+  <!-- Tech Stack & Shortcuts Split -->
+  <div class="api-hub-grid">
+    <section class="jet-card">
+      <h2 class="panel-title">Clean Technology Stack</h2>
+      <ul class="clean-spec-list">
+        <li><strong class="text-mint">HTML5:</strong> Multi-page semantic views with accessible ARIA live notifications.</li>
+        <li><strong class="text-gold">CSS3:</strong> Custom Jet Black + Electric Mint + Champagne Gold design system.</li>
+        <li><strong class="text-mint">JavaScript (ES6+):</strong> Client-side draft vault, key prefix auto-detector, `.eml` builder &amp; inline editor.</li>
+        <li><strong class="text-gold">Python 3 (Flask):</strong> Lightweight REST API orchestrator &amp; multi-provider LLM adapter.</li>
+      </ul>
+    </section>
+
+    <section class="jet-card">
+      <h2 class="panel-title">Creators &amp; Engineering Team</h2>
+      <div class="team-cards-stack">
+        <div class="team-member-box">
+          <div class="avatar-circle mint">AS</div>
+          <div>
+            <h3>Anmolpreet Singh</h3>
+            <span class="role-chip mint">Developer</span>
+            <p class="member-note">Full-stack architecture, multi-LLM Python engine &amp; interactive Studio workflow.</p>
+          </div>
+        </div>
+
+        <div class="team-member-box">
+          <div class="avatar-circle gold">MS</div>
+          <div>
+            <h3>Mridul Sharma</h3>
+            <span class="role-chip gold">Co-Developer</span>
+            <p class="member-note">Jet Black UI/UX design system, smart template curation &amp; multi-page experience.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+</div>
+{% endblock %}

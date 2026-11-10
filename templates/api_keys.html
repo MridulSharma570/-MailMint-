@@ -1,0 +1,206 @@
+{% extends "base.html" %}
+{% block title %}Free API Key Vault & Setup Guide — MailMint ✉️🌿{% endblock %}
+
+{% block content %}
+<div class="container-wide">
+  <div class="page-header-bar">
+    <div>
+      <span class="eyebrow-mint">ZERO-COST BYOK INTEGRATION</span>
+      <h1 class="page-title">Bring Your Own Free API Key</h1>
+      <p class="page-subtitle">
+        Connect any of the 5 free AI providers below. Keys stay strictly inside your browser's <code>localStorage</code> and are never stored on any database.
+      </p>
+    </div>
+    <a href="/studio" class="btn btn-mint">Back to Studio →</a>
+  </div>
+
+  <!-- Provider Cards Strip -->
+  <div class="provider-selector-grid" id="providerTabs" role="tablist" aria-label="Free AI Providers">
+    <button type="button" class="provider-card-tab active" data-provider="gemini" role="tab" aria-selected="true">
+      <div class="pcard-top">
+        <span class="pcard-name">Google Gemini</span>
+        <span class="pcard-status-dot"></span>
+      </div>
+      <span class="pcard-sub">Free Forever • Recommended</span>
+    </button>
+
+    <button type="button" class="provider-card-tab" data-provider="groq" role="tab" aria-selected="false">
+      <div class="pcard-top">
+        <span class="pcard-name">Groq Cloud</span>
+        <span class="pcard-status-dot"></span>
+      </div>
+      <span class="pcard-sub">Free • Sub-Second Speed</span>
+    </button>
+
+    <button type="button" class="provider-card-tab" data-provider="openrouter" role="tab" aria-selected="false">
+      <div class="pcard-top">
+        <span class="pcard-name">OpenRouter</span>
+        <span class="pcard-status-dot"></span>
+      </div>
+      <span class="pcard-sub">Free Models (:free)</span>
+    </button>
+
+    <button type="button" class="provider-card-tab" data-provider="mistral" role="tab" aria-selected="false">
+      <div class="pcard-top">
+        <span class="pcard-name">Mistral AI</span>
+        <span class="pcard-status-dot"></span>
+      </div>
+      <span class="pcard-sub">Free Experiment Tier</span>
+    </button>
+
+    <button type="button" class="provider-card-tab" data-provider="cohere" role="tab" aria-selected="false">
+      <div class="pcard-top">
+        <span class="pcard-name">Cohere</span>
+        <span class="pcard-status-dot"></span>
+      </div>
+      <span class="pcard-sub">Free Trial Key</span>
+    </button>
+  </div>
+
+  <!-- 2-Column Key Configuration + Step-by-Step Guide -->
+  <div class="api-hub-grid">
+    <!-- Left: Key Vault Configuration -->
+    <section class="jet-card api-config-card" aria-labelledby="vaultHeading">
+      <div class="card-head-row">
+        <h2 id="vaultHeading" class="panel-title">Configure Provider Credentials</h2>
+        <span id="keySavedBadge" class="meta-badge mint hidden">✓ Saved Locally</span>
+      </div>
+
+      <div class="field-group">
+        <label for="apiKeyInput" id="apiKeyLabel">Google Gemini API Key</label>
+        <div class="key-field-wrap">
+          <input
+            type="password"
+            id="apiKeyInput"
+            class="jet-input mono-input"
+            placeholder="AIzaSy..."
+            autocomplete="off"
+            spellcheck="false"
+          />
+          <button
+            type="button"
+            id="toggleKeyVisibilityBtn"
+            class="eye-toggle-btn"
+            title="Show or hide API key"
+            aria-label="Show or hide API key"
+          >
+            👁️
+          </button>
+        </div>
+        <small class="field-hint">
+          Smart Prefix Detection: pasting <code>AIza...</code>, <code>gsk_...</code>, or <code>sk-or-...</code> automatically selects the matching provider.
+        </small>
+      </div>
+
+      <div class="field-group">
+        <label for="modelSelect">Default Free Model</label>
+        <select id="modelSelect" class="jet-select">
+          <option value="gemini-2.5-flash">Gemini 2.5 Flash (Fast &amp; Smart — Free)</option>
+        </select>
+      </div>
+
+      <div class="vault-btn-row">
+        <button type="button" id="saveKeyBtn" class="btn btn-mint">
+          ✓ Save Key &amp; Activate
+        </button>
+        <button type="button" id="verifyKeyBtn" class="btn btn-gold-outline">
+          <span id="verifyBtnSpinner" class="spinner-sm hidden" aria-hidden="true"></span>
+          <span id="verifyBtnText">⚡ Test &amp; Verify Key</span>
+        </button>
+        <button type="button" id="clearKeyBtn" class="btn btn-danger-ghost">
+          Clear
+        </button>
+      </div>
+
+      <div class="privacy-callout">
+        <strong>🔒 100% Browser-Local Vault:</strong> Your API key is stored only in this browser's <code>localStorage</code> and passed over HTTPS solely when generating an email.
+      </div>
+    </section>
+
+    <!-- Right: Dynamic 4-Step Guide -->
+    <section class="jet-card api-guide-card" aria-labelledby="howToTitle">
+      <div class="guide-head">
+        <div>
+          <span class="eyebrow-gold" id="howToBadge">100% Free • Recommended</span>
+          <h2 id="howToTitle" class="panel-title">How to get your free Google Gemini key</h2>
+        </div>
+        <a
+          id="howToPortalLink"
+          href="https://aistudio.google.com/apikey"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="btn btn-gold-subtle"
+        >
+          Open Key Portal ↗
+        </a>
+      </div>
+
+      <ol class="guide-steps-list" id="howToSteps">
+        <li>Open Google AI Studio (aistudio.google.com/apikey) and sign in with your Google account.</li>
+        <li>Click 'Create API Key' (no credit card or billing setup is required).</li>
+        <li>Copy the generated key string (starts with 'AIzaSy...').</li>
+        <li>Paste the key into MailMint on the left and click 'Save Key &amp; Activate'!</li>
+      </ol>
+
+      <div class="quota-banner" id="howToQuotaNote">
+        Free forever tier • No credit card needed • 15 RPM / 1,000+ req/day
+      </div>
+    </section>
+  </div>
+
+  <!-- Full Comparison Matrix -->
+  <section class="jet-card matrix-section">
+    <h2 class="panel-title">All 5 Supported Free AI Providers Compared</h2>
+    <div class="table-scroll">
+      <table class="jet-table">
+        <thead>
+          <tr>
+            <th>Provider</th>
+            <th>Key Prefix</th>
+            <th>Response Speed</th>
+            <th>Credit Card Required?</th>
+            <th>Official Free Key Portal</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Google Gemini</strong></td>
+            <td><code>AIzaSy...</code></td>
+            <td><span class="text-mint">Fast (~1.5s)</span></td>
+            <td>No</td>
+            <td><a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener noreferrer">aistudio.google.com/apikey ↗</a></td>
+          </tr>
+          <tr>
+            <td><strong>Groq Cloud</strong></td>
+            <td><code>gsk_...</code></td>
+            <td><span class="text-gold">Instant (&lt;0.8s)</span></td>
+            <td>No</td>
+            <td><a href="https://console.groq.com/keys" target="_blank" rel="noopener noreferrer">console.groq.com/keys ↗</a></td>
+          </tr>
+          <tr>
+            <td><strong>OpenRouter</strong></td>
+            <td><code>sk-or-v1-...</code></td>
+            <td>Moderate (~2s)</td>
+            <td>No (<code>:free</code> models)</td>
+            <td><a href="https://openrouter.ai/keys" target="_blank" rel="noopener noreferrer">openrouter.ai/keys ↗</a></td>
+          </tr>
+          <tr>
+            <td><strong>Mistral AI</strong></td>
+            <td>Alphanumeric</td>
+            <td>Fast (~1.3s)</td>
+            <td>No (Experiment plan)</td>
+            <td><a href="https://console.mistral.ai/api-keys" target="_blank" rel="noopener noreferrer">console.mistral.ai/api-keys ↗</a></td>
+          </tr>
+          <tr>
+            <td><strong>Cohere</strong></td>
+            <td>Alphanumeric</td>
+            <td>Fast (~1.4s)</td>
+            <td>No (Trial key)</td>
+            <td><a href="https://dashboard.cohere.com/api-keys" target="_blank" rel="noopener noreferrer">dashboard.cohere.com/api-keys ↗</a></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+</div>
+{% endblock %}

@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block title %}Saved Drafts & Favorites — MailMint ✉️🌿{% endblock %}
+
+{% block content %}
+<div class="container-wide">
+  <div class="page-header-bar">
+    <div>
+      <span class="eyebrow-gold">LOCAL BROWSER VAULT</span>
+      <h1 class="page-title">Saved Drafts &amp; Favorites</h1>
+      <p class="page-subtitle">
+        Every email generated in Studio is saved privately on this device. Search, favorite, copy, export, or reopen any draft in Studio.
+      </p>
+    </div>
+    <div class="studio-header-actions">
+      <button type="button" id="exportVaultBtn" class="btn btn-jet-border">⬇️ Export JSON</button>
+      <button type="button" id="clearVaultBtn" class="btn btn-danger-ghost">Clear All</button>
+      <a href="/studio" class="btn btn-mint">+ New Email</a>
+    </div>
+  </div>
+
+  <!-- Filter & Search Bar -->
+  <div class="filter-toolbar jet-card">
+    <div class="search-wrap">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="search-icon">
+        <circle cx="11" cy="11" r="8"></circle>
+        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+      </svg>
+      <input
+        type="search"
+        id="vaultSearchInput"
+        class="jet-input search-input"
+        placeholder="Search saved drafts by subject, content, tone, or category..."
+      />
+    </div>
+
+    <div class="category-pills" id="vaultFilterTabs">
+      <button type="button" class="cat-pill active" data-filter="all">All Saved Drafts</button>
+      <button type="button" class="cat-pill" data-filter="starred">★ Starred Favorites</button>
+    </div>
+  </div>
+
+  <!-- Empty Vault State -->
+  <div id="vaultEmptyState" class="jet-card vault-empty hidden">
+    <div class="empty-emblem">🗂️</div>
+    <h3>No saved drafts yet</h3>
+    <p>Generate your first email in the Studio and it will automatically appear here for quick reference and reuse.</p>
+    <a href="/studio" class="btn btn-mint">Launch Email Studio →</a>
+  </div>
+
+  <!-- Saved Drafts List -->
+  <div id="vaultListGrid" class="vault-grid"></div>
+</div>
+{% endblock %}

@@ -1,0 +1,180 @@
+{% extends "base.html" %}
+{% block title %}MailMint ✉️🌿 — Turn Casual Notes into Executive Emails{% endblock %}
+
+{% block content %}
+<div class="container-wide entry-container">
+  <!-- ==================== HERO ENTRY SECTION ==================== -->
+  <section class="entry-hero">
+    <div class="hero-copy-col">
+      <div class="eyebrow-pill">
+        <span class="spark-gold">✦</span>
+        <span>100% Free Multi-AI Email Craftsmanship</span>
+      </div>
+
+      <h1 class="hero-headline">
+        Type rough thoughts.<br />
+        Send <span class="text-gradient-mint-gold">executive emails</span>.
+      </h1>
+
+      <p class="hero-lead">
+        <strong>MailMint</strong> transforms informal one-liners into structured, ready-to-send correspondence with the right tone, subject line, and sign-off — powered by your choice of 5 free AI engines.
+      </p>
+
+      <div class="hero-cta-row">
+        <a href="/studio" class="btn btn-mint btn-lg">
+          <span>Enter Email Studio</span>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+            <polyline points="12 5 19 12 12 19"></polyline>
+          </svg>
+        </a>
+        <a href="/api-keys" class="btn btn-gold-outline btn-lg">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"></path>
+          </svg>
+          <span>Connect Free API Key</span>
+        </a>
+      </div>
+
+      <div class="hero-stats-strip">
+        <div class="stat-item">
+          <span class="stat-num text-mint">5</span>
+          <span class="stat-label">Free AI Engines</span>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-item">
+          <span class="stat-num text-gold">30+</span>
+          <span class="stat-label">Tone × Type Modes</span>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-item">
+          <span class="stat-num text-mint">6</span>
+          <span class="stat-label">Output Languages</span>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-item">
+          <span class="stat-num text-gold">0</span>
+          <span class="stat-label">Server Tracking</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Interactive Live Transformation Demo Card -->
+    <div class="hero-showcase-col">
+      <div class="jet-card showcase-card">
+        <div class="showcase-topbar">
+          <div class="window-dots" aria-hidden="true">
+            <span class="wdot"></span>
+            <span class="wdot"></span>
+            <span class="wdot"></span>
+          </div>
+          <div class="demo-switcher" id="entryDemoTabs" role="tablist" aria-label="Interactive Email Transformation Examples">
+            <button type="button" class="demo-tab active" data-demo="offer">💼 Offer Reply</button>
+            <button type="button" class="demo-tab" data-demo="leave">🤒 Sick Leave</button>
+            <button type="button" class="demo-tab" data-demo="client">🤝 Client Pitch</button>
+          </div>
+        </div>
+
+        <div class="showcase-body">
+          <div class="demo-before-box">
+            <div class="demo-box-header">
+              <span class="box-tag muted-tag">YOUR ROUGH NOTE</span>
+              <span class="box-tone-pill" id="demoToneTag">Persuasive • Job Application</span>
+            </div>
+            <p id="demoRawText" class="demo-raw-quote">
+              "Tell HR I'm super excited about the Senior Frontend offer, ask if base salary can move from 18 LPA to 20 LPA given my 4 years React experience, ready to sign this week."
+            </p>
+          </div>
+
+          <div class="transform-connector" aria-hidden="true">
+            <span class="connector-badge">⚡ MailMint AI Transform</span>
+          </div>
+
+          <div class="demo-after-box">
+            <div class="demo-box-header">
+              <span class="box-tag mint-tag">POLISHED EXECUTIVE OUTPUT</span>
+              <a href="/studio" id="tryThisDemoBtn" class="mini-gold-link">Try in Studio →</a>
+            </div>
+            <p class="demo-subj-line" id="demoSubjText">
+              <span>Subject:</span> Offer Discussion — Senior Frontend Engineer Role
+            </p>
+            <div class="demo-email-preview" id="demoPolishedText">Dear Hiring Team,
+
+Thank you very much for extending the offer for the Senior Frontend Engineer position. I am thrilled about the opportunity to contribute to your product engineering team.
+
+Before finalizing, I wanted to ask whether there is flexibility to adjust the base compensation from 18 LPA to 20 LPA, reflecting my four years of production React architecture experience. If we can align on this, I am ready to sign this week.
+
+Warm regards,
+Anmolpreet Singh</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== SEPARATED PAGES PORTAL CARDS ==================== -->
+  <section class="portal-section">
+    <div class="section-head-center">
+      <span class="eyebrow-gold">EXPLORE THE WORKSPACE</span>
+      <h2 class="section-heading">Purpose-built pages for every step of your workflow</h2>
+    </div>
+
+    <div class="portal-grid">
+      <a href="/studio" class="jet-card portal-card mint-hover">
+        <div class="portal-icon mint-icon">✨</div>
+        <div class="portal-card-top">
+          <h3>AI Email Studio</h3>
+          <span class="arrow-chip">Open →</span>
+        </div>
+        <p>Side-by-side composer and live editor with 5 tones, 6 categories, length control, 6 languages, alternative subjects, and 1-click AI quick-refine.</p>
+      </a>
+
+      <a href="/templates" class="jet-card portal-card gold-hover">
+        <div class="portal-icon gold-icon">📑</div>
+        <div class="portal-card-top">
+          <h3>Smart Templates Library</h3>
+          <span class="arrow-chip gold">Browse →</span>
+        </div>
+        <p>12 curated real-world blueprints across Career, Workplace, Client Sales, Escalations, and Networking — load any scenario into Studio in 1 click.</p>
+      </a>
+
+      <a href="/api-keys" class="jet-card portal-card mint-hover">
+        <div class="portal-icon mint-icon">🔑</div>
+        <div class="portal-card-top">
+          <h3>Free API Key Vault</h3>
+          <span class="arrow-chip">Configure →</span>
+        </div>
+        <p>Connect free keys from Google Gemini, Groq Cloud, OpenRouter, Mistral AI, or Cohere with 60-second step-by-step instructions and live key verification.</p>
+      </a>
+
+      <a href="/history" class="jet-card portal-card gold-hover">
+        <div class="portal-icon gold-icon">🗂️</div>
+        <div class="portal-card-top">
+          <h3>Saved Drafts &amp; Favorites</h3>
+          <span class="arrow-chip gold">View Vault →</span>
+        </div>
+        <p>Every email you craft is saved privately in your browser. Search, filter, star your favorites, export as JSON/.eml, or reopen in Studio anytime.</p>
+      </a>
+    </div>
+  </section>
+
+  <!-- ==================== HOW IT WORKS STRIP ==================== -->
+  <section class="steps-banner jet-card">
+    <div class="step-col">
+      <span class="step-num">01</span>
+      <h4>Connect Any Free AI Key</h4>
+      <p>Grab a $0 key from Gemini, Groq, or OpenRouter in under 60 seconds — stored strictly in your browser.</p>
+    </div>
+    <div class="step-col">
+      <span class="step-num gold">02</span>
+      <h4>Jot Rough Bullet Points</h4>
+      <p>Type casually or pick a ready-made template, then select Tone, Length, and Language in the Studio.</p>
+    </div>
+    <div class="step-col">
+      <span class="step-num">03</span>
+      <h4>Refine, Copy or Launch</h4>
+      <p>Swap alternative subject lines, polish with 1-click AI actions, copy to clipboard, or open straight in Gmail/Mail.</p>
+    </div>
+  </section>
+</div>
+{% endblock %}

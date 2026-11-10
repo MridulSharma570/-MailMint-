@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block title %}Smart Email Templates — MailMint ✉️🌿{% endblock %}
+
+{% block content %}
+<div class="container-wide">
+  <div class="page-header-bar">
+    <div>
+      <span class="eyebrow-gold">CURATED SCENARIO LIBRARY</span>
+      <h1 class="page-title">Smart Email Templates</h1>
+      <p class="page-subtitle">
+        Pick a real-world blueprint below to pre-load its context, tone, and category straight into the MailMint Studio.
+      </p>
+    </div>
+    <a href="/studio" class="btn btn-mint">Blank Studio →</a>
+  </div>
+
+  <!-- Search & Category Filter Bar -->
+  <div class="filter-toolbar jet-card">
+    <div class="search-wrap">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="search-icon">
+        <circle cx="11" cy="11" r="8"></circle>
+        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+      </svg>
+      <input
+        type="search"
+        id="templateSearchInput"
+        class="jet-input search-input"
+        placeholder="Search templates (e.g., salary, resignation, refund, client, leave)..."
+      />
+    </div>
+
+    <div class="category-pills" id="templateCategoryTabs" role="tablist">
+      <button type="button" class="cat-pill active" data-category="all">All (12)</button>
+      <button type="button" class="cat-pill" data-category="Career">Career &amp; Jobs</button>
+      <button type="button" class="cat-pill" data-category="Workplace">Workplace &amp; HR</button>
+      <button type="button" class="cat-pill" data-category="Business">Client &amp; Business</button>
+      <button type="button" class="cat-pill" data-category="Support">Support &amp; Disputes</button>
+      <button type="button" class="cat-pill" data-category="Networking">Networking</button>
+    </div>
+  </div>
+
+  <!-- Templates Grid (Populated dynamically by app.js) -->
+  <div id="templatesGrid" class="templates-grid"></div>
+</div>
+{% endblock %}
