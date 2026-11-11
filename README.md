@@ -81,7 +81,7 @@ python app.py
 ```
 
 ### 3. Open in Your Browser
-Visit **`http://localhost:5000`**, connect any free API key in **API Keys**, and start crafting executive emails in **Studio**!
+Visit **`http://localhost:5000`**, connect any free API key in **API Keys**, and start crafting _ executive emails in **Studio**!
 
 ---
 
